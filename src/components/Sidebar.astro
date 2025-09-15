@@ -1,0 +1,61 @@
+---
+
+
+const apiUrl = import.meta.env.PUBLIC_API_URL;
+---
+
+<aside id="sidebar" class="bg-gray-900 text-white w-64 p-5 space-y-4 hidden md:block min-h-screen">
+  <button
+  id="toggleSidebarBtn"
+  class="md:hidden bg-gray-900 text-white px-4 py-2 m-4 rounded"
+>
+  ☰ Menú
+</button>
+  <aside
+  id="sidebar"
+  class="bg-gray-900 text-white w-44 p-5 space-y-4 hidden md:block min-h-screen fixed top-0 left-0 z-50"
+>
+  <h2 class="text-xl font-bold mb-6">SiluettePlus</h2>
+
+  <nav class="flex flex-col gap-2">
+    <a href="/auth/dashboard" class="hover:bg-gray-800 px-3 py-2 rounded">🏠 Dashboard</a>
+    <a href="/auth/users" class="hover:bg-gray-800 px-3 py-2 rounded">👥 Usuarios</a>
+    <a href="/auth/pacientes" class="hover:bg-gray-800 px-3 py-2 rounded">🧑‍⚕️ Pacientes</a>
+    <a href="/auth/asistencias" class="hover:bg-gray-800 px-3 py-2 rounded">📅 Asistencias</a>
+     <a href="/auth/citas" class="hover:bg-gray-800 px-3 py-2 rounded">📅 Citas</a>
+    <a href="/auth/abonos" class="hover:bg-gray-800 px-3 py-2 rounded">💳 Abonos</a>
+  </nav>
+
+  <button
+    id="logoutBtn"
+    class=" bg-red-600 hover:bg-red-700 text-white px-1 py-2 rounded"
+  >
+    🔒 Cerrar sesión
+  </button>
+
+  <script set:html={`window.API_URL = "${apiUrl}";`}></script>
+
+  <script type="module">
+    // Mostrar/ocultar sidebar
+    const toggleBtn = document.getElementById("toggleSidebarBtn");
+    const sidebar = document.getElementById("sidebar");
+
+    toggleBtn?.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+
+    // Logout
+    document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+      try {
+        const API_URL = window.API_URL;
+        await fetch(`${API_URL}/api/logout`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        window.location.href = '/login';
+      } catch (err) {
+        alert("Error al cerrar sesión");
+      }
+    });
+  </script>
+</aside>

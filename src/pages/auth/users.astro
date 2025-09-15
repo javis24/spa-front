@@ -1,0 +1,21 @@
+---
+import '../../styles/global.css';
+import Sidebar from '../../components/Sidebar.astro';
+import UserCrud from '../../components/UserCrud.jsx';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gestión de Usuarios</title>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex">
+    <!-- Sidebar -->
+    <Sidebar client:load />
+
+    <!-- Contenido -->
+    <main class="flex-1 p-6">
+      <UserCrud client:load />
+    </main>
+  </body>
+</html>

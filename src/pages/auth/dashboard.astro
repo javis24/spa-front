@@ -1,0 +1,114 @@
+---
+
+import '../../styles/global.css';
+import Sidebar from '../../components/Sidebar.astro';
+const apiUrl = import.meta.env.PUBLIC_API_URL;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script set:html={`window.API_URL = "${apiUrl}";`}></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen text-gray-800">
+
+    <!-- Botón para abrir sidebar en móvil -->
+    <button class="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded" onclick="document.getElementById('sidebar').classList.toggle('hidden')">
+      ☰
+    </button>
+
+    <div class="flex">
+      <!-- Sidebar -->
+      <Sidebar />
+
+      <!-- Contenido -->
+      <main class="flex-1 p-6">
+        <h2 class="text-3xl font-bold mb-6">SiluettePlus</h2>
+
+        <!-- Buscador -->
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Buscar módulo..."
+          class="w-full mb-6 p-3 border rounded text-gray-800"
+        />
+
+        <!-- Cards -->
+        <div id="cardContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Se llenará con JS -->
+        </div>
+      </main>
+    </div>
+
+    <!-- Script para renderizar cards -->
+    <script type="module">
+      const modules = [
+        {
+          id: "usuarios",
+          title: "Usuarios",
+          description: "Administra los usuarios del sistema.",
+          items: ["Crear", "Editar", "Eliminar"],
+          link: "/auth/users"
+        },
+        {
+          id: "pacientes",
+          title: "Pacientes",
+          description: "Gestión de datos médicos y personales.",
+          items: ["Nuevo paciente", "Historial", "Evaluación"],
+          link: "/auth/pacientes"
+        },
+        {
+          id: "asistencias",
+          title: "Asistencias",
+          description: "Registro de entrada y salida del personal.",
+          items: ["Entrada", "Salida", "Ver registros"],
+          link: "/auth/asistencias"
+        },
+        {
+          id: "abonos",
+          title: "Abonos",
+          description: "Pagos semanales de pacientes.",
+          items: ["Registrar abono", "Consultar", "Historial"],
+          link: "/auth/abonos"
+        }
+      ];
+
+      const cardContainer = document.getElementById("cardContainer");
+      const searchInput = document.getElementById("searchInput");
+
+      function renderCards(filteredModules) {
+        cardContainer.innerHTML = "";
+
+        filteredModules.forEach(mod => {
+          const card = document.createElement("div");
+          card.className = "bg-white shadow-md rounded p-5 text-gray-800 border";
+
+          card.innerHTML = `
+            <h2 class="text-xl font-bold mb-2">${mod.title}</h2>
+            <p class="mb-2 text-sm text-gray-600">${mod.description}</p>
+            <ul class="mb-4 text-sm list-disc pl-5 text-gray-700">
+              ${mod.items.map(i => `<li>${i}</li>`).join("")}
+            </ul>
+            <button onclick="location.href='${mod.link}'" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+              Ir a ${mod.title}
+            </button>
+          `;
+
+          cardContainer.appendChild(card);
+        });
+      }
+
+      searchInput.addEventListener("input", (e) => {
+        const value = e.target.value.toLowerCase();
+        const filtered = modules.filter(mod =>
+          mod.title.toLowerCase().includes(value)
+        );
+        renderCards(filtered);
+      });
+
+      renderCards(modules);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+---
+import '../../styles/global.css';
+import Sidebar from '../../components/Sidebar.astro';
+import PacienteCrud from '../../components/PacienteCrud.jsx';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gestión de Pacientes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+
+  <body class="bg-gray-100 min-h-screen flex">
+    <!-- Botón hamburguesa para móviles -->
+    <button
+      id="toggleSidebarBtn"
+      class="md:hidden bg-gray-900 text-white px-4 py-2 m-4 rounded fixed z-50"
+    >
+      ☰ Menú
+    </button>
+
+    <!-- Sidebar -->
+    <Sidebar client:load />
+
+    <!-- Contenido principal -->
+    <main class="flex-1 p-6">
+      <div class="max-w-7xl mx-auto">
+        <PacienteCrud client:load />
+      </div>
+    </main>
+
+    <!-- Script para toggle de sidebar -->
+    <script>
+      const btn = document.getElementById("toggleSidebarBtn");
+      const sidebar = document.getElementById("sidebar");
+      btn?.addEventListener("click", () => {
+        sidebar?.classList.toggle("hidden");
+      });
+    </script>
+  </body>
+</html>

@@ -4,7 +4,7 @@
 
 import '../../../styles/global.css';
 import Sidebar from '../../../components/Sidebar.astro';
-import MetricasForm from '../../../components/MetricasForm.jsx'; // <-- .jsx
+
 
 const { uuid } = Astro.params;
 ---
@@ -30,7 +30,7 @@ const { uuid } = Astro.params;
 
         <section class="bg-white border rounded p-4">
           <h2 class="text-lg font-semibold mb-2">Métricas de salud</h2>
-          <MetricasForm client:load pacienteUuid={uuid} />
+    
         </section>
       </div>
     </main>

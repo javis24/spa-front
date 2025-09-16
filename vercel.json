@@ -1,5 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://spa-back-chi.vercel.app/api/$1" }
-  ]
-}
+{ "rewrites": [{ "source": "/api/(.*)", "destination": "https://spa-back-chi.vercel.app/api/$1" }] }

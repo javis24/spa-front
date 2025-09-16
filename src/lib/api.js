@@ -1,141 +1,65 @@
 // src/lib/api.js
-const API_URL =
-  typeof window !== 'undefined' && window.API_URL
-    ? window.API_URL
-    : import.meta.env.PUBLIC_API_URL;
+const API_URL = (import.meta.env.PUBLIC_API_URL || '/api').replace(/\/$/, ''); // sin slash final
 
-export async function getCurrentUser() {
-  const res = await fetch(`${API_URL}/api/me`, {
-    method: 'GET',
+async function request(path, { method = 'GET', json, headers = {}, ...rest } = {}) {
+  const url = `${API_URL}${path.startsWith('/') ? path : `/${path}`}`;
+  const res = await fetch(url, {
+    method,
     credentials: 'include',
+    headers: {
+      ...(json ? { 'Content-Type': 'application/json' } : {}),
+      ...headers,
+    },
+    body: json ? JSON.stringify(json) : undefined,
+    ...rest,
   });
-  if (!res.ok) return null;
-  return await res.json();
-}
-
-export async function getCitas({ fecha = null, onlyMine = false } = {}) {
-  let url = `${API_URL}/api/citas`;
-  const params = [];
-  if (fecha) params.push(`fecha=${fecha}`);
-  if (onlyMine) params.push('myself=true');
-  if (params.length) url += `?${params.join('&')}`;
-
-  const res = await fetch(url, { method: 'GET', credentials: 'include' });
-  if (!res.ok) return [];
-  return await res.json();
-}
-
-export async function getPacientes({ onlyMine = false } = {}) {
-  let url = `${API_URL}/api/pacientes`;
-  if (onlyMine) url += `?mine=true`; // si tu backend lo soporta
-  const res = await fetch(url, { credentials: 'include' });
-  if (!res.ok) return [];
-  return await res.json();
-}
-
-export async function createCita(payload) {
-  const res = await fetch(`${API_URL}/api/citas`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  // intenta parsear JSON, pero tolera respuestas vacías
+  let data = null;
+  try { data = await res.clone().json(); } catch {}
   if (!res.ok) {
-    let msg = 'Error al crear cita';
-    try { msg = (await res.json()).msg || msg; } catch {}
+    const msg = (data && (data.msg || data.error)) || `HTTP ${res.status}`;
     throw new Error(msg);
+    
   }
-  return await res.json();
+  return data;
 }
 
+// === Endpoints ===
+export const getCurrentUser = () => request('/api/me');
 
-export async function getAbonos({ onlyMine = false, userId = null } = {}) {
+export const getCitas = ({ fecha = null, onlyMine = false } = {}) => {
+  const qs = new URLSearchParams();
+  if (fecha) qs.set('fecha', fecha);
+  if (onlyMine) qs.set('myself', 'true');
+  const q = qs.toString();
+  return request(`/api/citas${q ? `?${q}` : ''}`);
+};
 
-  if (onlyMine) {
-    const r = await fetch(`${API_URL}/api/abonos/mis`, { credentials: 'include' });
-    if (r.ok) return await r.json();
-  }
-  if (userId) {
-    const r = await fetch(`${API_URL}/api/abonos/${userId}`, { credentials: 'include' });
-    if (r.ok) return await r.json();
-  }
+export const getPacientes = ({ onlyMine = false } = {}) =>
+  request(`/api/pacientes${onlyMine ? '?mine=true' : ''}`);
 
+export const createCita = (payload) =>
+  request('/api/citas', { method: 'POST', json: payload });
 
-  const res = await fetch(`${API_URL}/api/abonos`, { credentials: 'include' });
-  if (!res.ok) return [];
+export const getAbonos = async ({ onlyMine = false, userId = null } = {}) => {
+  if (onlyMine) return request('/api/abonos/mis');
+  if (userId)   return request(`/api/abonos/${userId}`);
+  const all = await request('/api/abonos');
+  if (!onlyMine) return all;
+  const me = await getCurrentUser();
+  return me?.id ? all.filter(a => String(a.userId) === String(me.id)) : [];
+};
 
-  const all = await res.json();
+export const createAbono = (payload) =>
+  request('/api/abonos', { method: 'POST', json: payload });
 
+export const getUsers = async ({ role } = {}) => {
+  const list = await request('/api/users');
+  return role ? list.filter(u => u.role === role) : list;
+};
 
-  if (onlyMine) {
-    const me = await getCurrentUser();
-    if (me?.id) {
-      return all.filter((a) => String(a.userId) === String(me.id));
-    }
-    return [];
-  }
-
-  return all;
-}
-
-
-export async function createAbono(payload) {
-  const res = await fetch(`${API_URL}/api/abonos`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    let msg = 'Error al crear abono';
-    try { msg = (await res.json()).msg || msg; } catch {}
-    throw new Error(msg);
-  }
-  return await res.json();
-}
-
-export async function getUsers({ role } = {}) {
-  const res = await fetch(`${API_URL}/api/users`, { credentials: 'include' });
-  if (!res.ok) return [];
-  const data = await res.json();           // ← debería traer [{ id, uuid, name, email, role, ... }]
-  return role ? data.filter(u => u.role === role) : data;
-}
-
-
-
-// ✅ Asistencia: obtener, marcar entrada/salida
-export async function getAsistencia() {
-  const res = await fetch(`${API_URL}/api/asistencia`, { credentials: 'include' });
-  if (!res.ok) return [];
-  return await res.json();
-}
-
-export async function marcarEntrada(userId) {
-  const res = await fetch(`${API_URL}/api/asistencia/entrada`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId }),
-  });
-  if (!res.ok) {
-    let msg = 'Error al registrar entrada';
-    try { msg = (await res.json()).msg || msg; } catch {}
-    throw new Error(msg);
-  }
-  return await res.json();
-}
-
-export async function marcarSalida(userId) {
-  const res = await fetch(`${API_URL}/api/asistencia/salida`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId }),
-  });
-  if (!res.ok) {
-    let msg = 'Error al registrar salida';
-    try { msg = (await res.json()).msg || msg; } catch {}
-    throw new Error(msg);
-  }
-  return await res.json();
-}
+export const getAsistencia = () => request('/api/asistencia');
+export const marcarEntrada = (userId) =>
+  request('/api/asistencia/entrada', { method: 'POST', json: { userId } });
+export const marcarSalida = (userId) =>
+  request('/api/asistencia/salida', { method: 'POST', json: { userId } });

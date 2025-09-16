@@ -1,20 +1,21 @@
 ---
+
 import '../../styles/global.css';
-const apiUrl = import.meta.env.PUBLIC_API_URL;
+const apiUrl = import.meta.env.PUBLIC_API_URL || '/api'; 
 
 ---
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Iniciar sesión - SiluettePlus</title>
-      <script set:html={`window.API_URL = "${apiUrl}";`}></script>
 
+      <script set:html={`window.API_URL = ${JSON.stringify(apiUrl)};`}></script>
   </head>
-  <body class="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-   
 
+  <!-- 👇 SOLO UN body -->
   <body class="min-h-screen flex items-center justify-center bg-gray-900 p-4">
     <div class="max-w-lg w-full">
       <div class="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
@@ -22,32 +23,17 @@ const apiUrl = import.meta.env.PUBLIC_API_URL;
           <h2 class="text-center text-3xl font-extrabold text-white">
             Bienvenido de nuevo
           </h2>
-          <p class="mt-4 text-center text-gray-400">
-            Inicia sesión para continuar
-          </p>
+          <p class="mt-4 text-center text-gray-400">Inicia sesión para continuar</p>
 
           <form id="loginForm" class="mt-8 space-y-6" action="javascript:void(0)" novalidate>
-
             <div class="rounded-md shadow-sm">
               <div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="Correo electrónico"
-                  class="appearance-none block w-full px-3 py-3 border border-gray-700 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
+                <input id="email" name="email" type="email" required placeholder="Correo electrónico"
+                  class="appearance-none block w-full px-3 py-3 border border-gray-700 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
               </div>
               <div class="mt-4">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  placeholder="Contraseña"
-                  class="appearance-none block w-full px-3 py-3 border border-gray-700 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
+                <input id="password" name="password" type="password" required placeholder="Contraseña"
+                  class="appearance-none block w-full px-3 py-3 border border-gray-700 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
               </div>
             </div>
 
@@ -55,20 +41,16 @@ const apiUrl = import.meta.env.PUBLIC_API_URL;
               <div class="text-sm">
                 <a
                   href="https://wa.me/528711234567?text=Hola%2C%20olvid%C3%A9%20mi%20contrase%C3%B1a%20y%20necesito%20recuperarla"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="font-medium text-indigo-500 hover:text-indigo-400"
-                >
+                  target="_blank" rel="noopener noreferrer"
+                  class="font-medium text-indigo-500 hover:text-indigo-400">
                   ¿Olvidaste tu contraseña?
                 </a>
               </div>
             </div>
 
             <div>
-              <button
-                type="submit"
-                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
+              <button type="submit"
+                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-gray-900 bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 Iniciar sesión
               </button>
             </div>
@@ -81,16 +63,11 @@ const apiUrl = import.meta.env.PUBLIC_API_URL;
 
         <div class="px-8 py-4 bg-gray-700 text-center">
           <span class="text-gray-400">¿No tienes cuenta?</span>
-          <a
-            href="#"
-            class="font-medium text-indigo-500 hover:text-indigo-400"
-          >
-            Regístrate
-          </a>
+          <a href="#" class="font-medium text-indigo-500 hover:text-indigo-400">Regístrate</a>
         </div>
       </div>
     </div>
-    
+
     <script type="module" src="/src/scripts/login.js"></script>
   </body>
 </html>

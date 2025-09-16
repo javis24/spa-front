@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_URL = window.API_URL;
+  const API_URL = (window.API_URL || "/api").replace(/\/$/, ""); // <- sin slash final
   const form = document.getElementById("loginForm");
   const errorMsg = document.getElementById("errorMsg");
 
@@ -7,26 +7,24 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     errorMsg.style.display = "none";
 
-    const email = document.getElementById("email").value;
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
     try {
       const response = await fetch(`${API_URL}/api/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", 
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("✅ Login exitoso:", data);
+        await response.json(); // opcional
         window.location.href = "/auth/dashboard";
       } else {
-        const errorData = await response.json();
-        errorMsg.textContent = errorData?.msg || "Correo o contraseña incorrectos";
+        let msg = "Correo o contraseña incorrectos";
+        try { msg = (await response.json()).msg || msg; } catch {}
+        errorMsg.textContent = msg;
         errorMsg.style.display = "block";
       }
     } catch (err) {
